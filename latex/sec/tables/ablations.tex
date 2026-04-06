@@ -1,0 +1,144 @@
+% % ===== Table 1: 组件级消融 =====
+% \begin{table}[t]
+% \centering
+% \small
+% \setlength{\tabcolsep}{6pt}
+% \renewcommand{\arraystretch}{1.12}
+% \caption{Component ablations. Metrics reported on \textit{[Benchmark]}: Overall(\%), \#Text per case, and end-to-end Latency.}
+% \begin{tabular}{lccc}
+% \toprule
+% \textbf{Method Variant} & \textbf{Overall$\uparrow$} & \textbf{\#Text$\downarrow$} & \textbf{Latency(ms)$\downarrow$}\\
+% \midrule
+% \multicolumn{4}{l}{\emph{w/o Reranker: similarity-based retrieval only}}\\
+% \quad CLIP (image)                     & -- & -- & -- \\
+% \quad Video-CLIP (video)               & -- & -- & -- \\
+% \quad PE (project-specific encoder)    & -- & -- & -- \\
+% \midrule
+% w/o weighted expectation (use argmax label) & -- & -- & -- \\
+% w/o semantic-adaptive segmentation (fixed window graph) & -- & -- & -- \\
+% w/o spatial edges                       & -- & -- & -- \\
+% w/o temporal edges                      & -- & -- & -- \\
+% w/o spatio-temporal graph (uniform sparse frames $\rightarrow R_{\theta}$) & -- & -- & -- \\
+% \textbf{Full (STC-R$^{2}$)}             & \textbf{--} & \textbf{--} & \textbf{--} \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+
+% \begin{table}[t]
+% \centering
+% \scriptsize
+% \setlength{\tabcolsep}{2pt}
+% \caption{\small Comparison with keyframe selection methods for long-video understanding. Results are obtained with LLaVA-Video (7B). Bold and underlined numbers indicate the best and second-best accuracies, respectively. ‘–’ indicates not applicable.} 
+% \resizebox{\linewidth}{!}{
+% \begin{tabular}{l c c c c}
+% \toprule
+% \multirow{2}{*}{\textbf{Method}}&\multicolumn{2}{c}{\textbf{LV-Bench (Val)}}&\multicolumn{2}{c}{\textbf{Video-MME-Long (w/o Sub)}}\\ \cmidrule(lr){2-3}  \cmidrule(lr){4-5} 
+%  & Overall$\uparrow$ & Gain$\uparrow$&Overall$\uparrow$ & Gain$\uparrow$\\
+% \midrule
+% Uniform Sampling &56.6 &- &54.3&-\\
+% AKS~\cite{AKS}&62.1 & 9.7&54.7&0.7\\
+% FOCUS~\cite{FOCUS}& 63.5&12.2 &\textbf{56.1}&\textbf{3.3}\\
+% \textbf{VideoStir (Ours)}& \textbf{64.3} & \textbf{13.6}&\underline{55.9}&\underline{2.9}\\
+% \bottomrule
+% \end{tabular}
+% }
+% \label{tab:comp3}
+% % \vspace{-0.1 in}
+% \end{table}
+
+% ===== Table 1: 组件级消融 =====
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\caption{\small Component-level ablations on the expanded 1k validation set. ``Overall'' denotes overall accuracy, and ``Retrieval Acc.'' measures the accuracy of successfully retrieving key cues. ``w/o Intent-relevance Scorer'' replaces the scorer with similarity-based frame retrieval; ``w/o Weighted Expectation'' replaces probability-weighted expectation with discrete scores; ``w/o Spatio-Temporal Graph'' disables structured retrieval, which bypasses the graph and directly selects the top-14 clips by PE-embedding similarity, following the best-performing setting in Table~\ref{tab:ablation_hyperparams}. Bold indicates the best results.}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lccc}
+\toprule
+\textbf{Method} & \textbf{Overall$\uparrow$} & \textbf{Retrieval Acc.$\uparrow$}\\
+\midrule
+w/o Intent-relevance Scorer \\
+\quad + CLIP L/14                   & 52.8 & 69.2 \\
+\quad + Video-CLIP                  & 56.3 & 75.4 \\
+\quad + PE                          & 58.1 & 79.8 \\
+w/o Weighted Expectation            & 54.2 & 71.6 \\
+w/o Event-Boundary Detector         & 62.3 & 88.2 \\
+w/o Spatio-Temporal Graph           & 56.4 & 74.8 \\
+w/o Spatial Edges                   & 57.2 & 79.3 \\
+w/o Temporal Edges                  & 59.8 & 83.4 \\
+\midrule
+\textbf{Full}                 & \textbf{64.5} & \textbf{92.2}  \\
+\bottomrule
+\end{tabular}
+}
+\label{tab:ab1}
+% \vspace{-0.10 in}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.12}
+\caption{\small 
+Ablations of VideoStir's video-language embedding backbones with $N=1000$. ``Overall'' denotes overall accuracy, and ``Retrieval Acc.'' refers to the accuracy of successfully retrieving the key evidence for answering the query. The bold numbers represent the best results.} 
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lcc}
+\toprule
+\textbf{Embedding Backbone} & \textbf{Overall$\uparrow$} & \textbf{Retrieval Acc.$\uparrow$} \\
+\midrule
+Video-CLIP~\cite{videoclip}              & 62.1 & 88.3  \\
+X-CLIP~\cite{xclip}                      & 62.8 & 89.4 \\
+\textbf{PE}~\cite{perceptionenc}         & \textbf{64.5} & \textbf{92.2}  \\
+\bottomrule
+\end{tabular}
+}
+\label{tab:ab2}
+% \vspace{-0.10 in}
+\end{table}
+
+\begin{table*}[t]
+\centering
+\small
+\caption{\small {Ablations on the intent-relevant scorer’s distillation strategies. ``IR-600K CE'' and ``LV-Bench CE'' denote the cross-entropy loss computed on the corresponding datasets. To reduce distributional bias, the student model is distilled using teacher models from the same family. ``Retrieval Acc.'' refers to the accuracy of successfully retrieving the key evidence.}} 
+\resizebox{\linewidth}{!}{
+\begin{tabular}{llccccc}
+\toprule
+\textbf{Base Model} &\textbf{Method} & \textbf{IR-600K CE $\downarrow$}& \textbf{LV-Bench CE $\downarrow$}&\textbf{Overall $\uparrow$}&\textbf{Retrieval Acc. $\uparrow$}& \textbf{Trainable Params $\downarrow$}\\
+\specialrule{\lightrulewidth}{0pt}{0pt}
+\rowcolor[HTML]{FFF7F0}
+\multicolumn{7}{c}{\rule[-1ex]{0pt}{3.3ex}\textbf{\textit{Teacher Models}}}\\
+\specialrule{\lightrulewidth}{0pt}{0.8ex}
+InternVL2.5-78B&Zero-Shot   &  -&-& 64.8 & 92.6 &  - \\
+Qwen2.5-VL-72B&Zero-Shot   & - &-& 65.4 & 95.8 &  - \\
+Qwen2-VL-72B&Zero-Shot   & -&-& 64.9 & 94.7 &  - \\
+\specialrule{\lightrulewidth}{0pt}{0pt}
+\rowcolor[HTML]{FFF7F0}
+\multicolumn{7}{c}{\rule[-1ex]{0pt}{3.3ex}\textbf{\textit{Student Models}}}\\
+\specialrule{\lightrulewidth}{0pt}{0.8ex}
+\multirow{3}{*}{InternVL2.5-4B}& Zero-Shot   & 8.8755 & 8.9423 &59.3 & 82.1  &  - \\
+&LoRA & 3.4614 &3.8151& 62.3 & 87.8 &  3.7M  \\
+&Full Params   & 3.0238& 3.2578& 63.4 & 90.7 & 3.0B\\
+\midrule
+\multirow{3}{*}{Qwen2.5-VL-3B}&Zero-Shot   & 8.0909 &8.1742& 61.2 & 85.8 &  - \\
+&LoRA & 3.3101 &3.6461& 64.5 & 92.2 &  3.7M  \\
+
+&Full Params   & 2.9127& 3.1017& 64.7 & 93.2 & 3.0B \\
+\midrule
+\multirow{3}{*}{Qwen2-VL-2B}& Zero-Shot   & 9.3210 &9.3872 & 58.7 & 80.4 &  - \\
+&LoRA & 3.8127 & 4.3093& 61.3 & 86.8 & 4.4M   \\
+&Full Params   &3.1846& 3.5204& 62.4 & 88.9 & 1.5B \\
+\bottomrule
+\end{tabular}
+}
+\label{tab:ab3}
+% \vspace{-0.10 in}
+\end{table*}
+
+
+%只开qk 对于InternVL和Qwen2.5而言是3.7M，对于2VL2B而言是2.2M (r改32-4.4M)
+%开qkvo，对于InternVL和Qwen2.5而言是7.4M，对于2BL2B而言是4.4M(r改32=8.7)
+
+

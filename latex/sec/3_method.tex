@@ -1,0 +1,57 @@
+\section{Method}
+\subsection{Overview}
+We propose VideoStir, a long-video RAG framework that explicitly models video spatio-temporal topology and query intent to retrieve pivotal evidence, thereby advancing downstream MLLMs’ long-video understanding. 
+
+As illustrated in Figure~\ref{fig:fw}, VideoStir comprises three phases: (1) Spatio-temporal topology modeling. It converts the input video into a structured graph. An event boundary detector partitions the video into clip-level nodes connected by temporal edges (chronological adjacency) and spatial edges (inter-clip semantic similarity). This design reconstructs the topology of the video’s spatio-temporal context. (2) Graph-based clip retrieval. It first identifies anchor clips semantically aligned with the query, then expands the context via multi-hop traversal on the spatio-temporal graph. Consequently, the retrieved evidence includes not only query-matched moments but also their spatio-temporally relevant neighbors that are critical for reasoning. (3) Intent-aware frame retrieval. It refines evidence at the frame level. Since semantic similarity often fails to capture the query’s underlying intent, we introduce an intent-relevance scorer. Specifically, we leverage a lightweight MLLM fine-tuned on our curated IR-600K dataset to assign each frame a relevance score, computed as the weighted expectation over predicted relevance levels. It mitigates the loss of implicit cues inherent to explicit semantic matching, yielding an intent-aligned evidence set for downstream MLLMs.
+
+\subsection{Spatio-Temporal Topology Modeling}
+
+To structurally encode a long video’s spatio-temporal topology, we model it as a graph $\mathcal{G}=(\mathcal{V},\mathcal{E})$, where each node $v_k \in \mathcal{V}$ corresponds to a clip $s_k \subset S$. These clips are obtained via an event boundary detector, which preprocesses the long video into semantically coherent segments by identifying event transitions through semantic change-point detection. This process is implemented by applying PELT~\cite{PELT} to the frame embeddings for adaptive segmentation. For each clip, we compute an embedding $h_k = E_{\mathrm{vl}}(s_k)$ with a video–language encoder $E_{\mathrm{vl}}$. The edge set $\mathcal{E}=\{\mathcal{E}_{\mathrm{Temp}}, \mathcal{E}_{\mathrm{Sp}}\}$ consists of temporal edges $\mathcal{E}_{\mathrm{Temp}}=\{(v_k,v_{k+1})\mid w_{k,k+1}=1\}$ and spatial edges $\mathcal{E}_{\mathrm{Sp}}=\{(v_i,v_j)\mid w_{i,j}=\cos(h_i,h_j)\}$, where $w$ denotes the edge weight. {Here, we refer to the embedding space as the ``spatial'' dimension of the topology. Temporal edges connect chronologically adjacent clips, preserving the video’s temporal backbone. Spatial edges are weighted by the similarity between clip embeddings, capturing inter-clip correlations when different moments share similar video-level features. By jointly modeling these edges, $G$ induces a spatio-temporal topology over clips: temporally adjacent events are linked along timeline, while semantically coherent yet temporally distant events are bridged via spatial edges. This graph re-entangles contextual relations that may be lost in a flattened representation and provides the backbone for multi-hop retrieval.}
+
+
+\subsection{Graph-based Clip Retrieval}
+
+Given a query $q$ and a spatio-temporal graph $\mathcal{G}$, we aim to coarsely retrieve clips that are semantically relevant to $q$ and topologically supported by inter-clip correlations. {This design addresses semantically sparse query–clip matching: a query may refer to only a small facet of an event (e.g., the main subject), whereas long videos often contain recurring scenes/actions/entities and temporally adjacent evidence that constitute critical spatio-temporal contexts for the underlying event, which can be missed by simply computing semantic similarity between the query and individual moments. As shown in Figure~\ref{fig:extended_case}, with our spatio-temporal graph, these contexts can be recovered via inter-clip similarity and chronological adjacency encoded by spatio-temporal edges. 
+
+Specifically, we first compute the query embedding $h_q = E_{\text{vl}}(q)$ using the same video-language encoder as for clips, placing queries and clip nodes in a shared embedding space. We then measure query-node similarity via $\cos(h_q, h_k)$, and select the top-$N$ similar nodes as the anchor set $\mathcal{V}_{\text{anc}}$. While these anchors are matched to the query, they may not fully cover their implicitly contextual dependencies. To recover broader context, we expand $\mathcal{V}_{\text{anc}}$ along spatio-temporal links in $\mathcal{G}$, traversing edges according to their weights and collecting nodes within $L$ hops of the anchors:
+\begin{equation}
+\resizebox{0.75\linewidth}{!}{$\displaystyle
+\mathcal{V}_\text{hop}
+= \{\, v_j \mid d(v_j, \mathcal{V}_{\text{anc}}) \le L,\; w_{ij} \ge \eta \,\},
+$}
+\end{equation}
+where $d(v_j, \mathcal{V}_{\text{anc}})$ is the shortest hop distance from $v_j$ to any anchor in $\mathcal{V}_{\text{anc}}$, and threshold $\eta$ filters out weak connections. {In this way, multi-hop traversal yields a coarse spatio-temporal neighborhood around the event hinted by the query, providing contextual candidates for subsequent fine-grained intent-level filtering.}
+
+\subsection{Intent-aware Frame Retrieval}
+\label{sec:method_int}
+\noindent\textbf{Intent Relevance Reasoning and Retrieval.} While multi-hop retrieval yields a set of contextually related clips, the candidates may include redundant or merely co-occurring frames that are semantically relevant but misaligned with the query’s underlying intent. We therefore introduce an intent-relevance scorer $R_\theta$, which filters retrieved clips at frame level using the intent-reasoning capability of a lightweight MLLM backbone $\pi_{\theta}$. Specifically, $R_\theta$ estimates frame-query intent relevance, separating frames that genuinely support the query’s intent from those with only superficial similarity.
+
+Given the retrieved node set $\mathcal{V}_{\text{hop}} = \{ v_k \}$,  where each node represents a video clip, we expand them into a dense frame pool: $\mathcal{F}_{\text{ret}} = 
+\bigcup_{v_k \in \mathcal{V}_{\text{hop}}} 
+\{ x_t \mid x_t \in v_k \}$. For a query–frame pair $(q, x_t)$, the scorer outputs a softmax-normalized probability distribution over discrete intent-relevance level tokens $\ell \in \{1,2,3,4,5\}$:
+\begin{equation}
+\resizebox{\linewidth}{!}{$\displaystyle
+P_{\theta}(\ell \mid q, x_t, \mathcal{P}_{\text{intent}})
+= \frac{\exp(\pi_{\theta}(\ell \mid q, x_t, \mathcal{P}_{\text{intent}}))}
+{\sum_{k=1}^{5}\exp(\pi_{\theta}(k \mid q, x_t, \mathcal{P}_{\text{intent}}))},
+$}
+\end{equation}
+where $\pi_{\theta}(\cdot)$ denotes the logits produced by the MLLM backbone of $R_{\theta}$, and $\mathcal{P}_{\text{intent}}$ (detailed in Appendix~\ref{appendix:prompt}) denotes the prompt that guides the MLLM backbone $\pi_\theta$ to reason and score intent relevance. The score of frame $x_t$ is computed as the weighted expectation over relevance level tokens:
+\begin{equation}
+\resizebox{\linewidth}{!}{$r_t = R_{\theta}(q, x_t,\mathcal{P}_{\text{intent}}) = \sum_{\ell=1}^{5} \ell \cdot P_{\theta}(\ell \mid q, x_t,\mathcal{P}_{\text{intent}}).
+$}
+\end{equation}
+This converts the model’s internal reasoning into a continuous relevance score, distinguishing frames that provide intent-level support for the query from those that are merely semantically similar. After obtaining scores for $\mathcal{F}_{\text{ret}}$, 
+we retain frames exceeding a relevance threshold $\kappa_s$. 
+The resulting set $\mathcal{F}_{\text{intent}} =
+\{\, x_t \mid r_t > \kappa_s \,\}$ provides an intent-aligned visual context for downstream reasoning.
+
+\noindent\textbf{Distillation-based Scorer Training.} To strengthen the scorer’s intent-relevance assessment, we adopt a distillation strategy to fine-tune its MLLM backbone. Specifically, given a query-frame pair $(q, x_t)$ and the intent-relevance scoring prompt $\mathcal{P}_\text{intent}$, a powerful teacher MLLM $\mathcal{T}$ is asked to rate the intent relevance between $q$ and $x_t$ on the discrete level (1-5). The resulting pseudo-label $y_t = \mathcal{T}(q, x_t, \mathcal{P}_\text{intent})$ serves as supervision for the student scorer $R_{\theta}$. During fine-tuning, we inject low-rank adaptation (LoRA) parameters~\cite{lora} into the MLLM backbone of $R_{\theta}$, enabling efficient adaptation without substantially disrupting its pretrained priors. Given the student prediction $P_{\theta}(\ell \mid q, x_t, \mathcal{P}_\text{intent})$, the training objective minimizes the cross-entropy between the student-predicted distribution and the teacher-provided discrete label:
+\begin{equation}
+\resizebox{0.85\linewidth}{!}{$\displaystyle
+\mathcal{L}_{\mathrm{CE}} = 
+- \sum_{\ell=1}^{5} 
+\mathbf{1}[\ell = y_t] \log P_{\theta}(\ell \mid q, x_t, \mathcal{P}_{\text{intent}}).
+$}
+\end{equation}
+The LoRA parameters are optimized via gradient descent, enabling the student to inherit the teacher’s relevance-assessment patterns and yield more accurate relevance scores, while retaining the computational efficiency of its lightweight backbone.

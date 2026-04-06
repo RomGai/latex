@@ -1,0 +1,14 @@
+\clearpage
+\setcounter{page}{1}
+\maketitlesupplementary
+
+
+\noindent\textbf{Semantic-Adaptive Segmentation.} Given a long video $\mathcal{X}$, we uniformly sample it with a fixed stride $\Delta t$ to obtain a sparse frame set $\mathcal{F} = \{ f_t \}_{t=1}^{N} \subset \mathcal{X}$. Each frame $f_i$ is processed by a language-aligned visual encoder $E_{\mathrm{vis}}$, such as the vision tower of an MLLM, to extract semantic embeddings $ \mathcal{Z}_{\text{feat}} = \{ z_t \}_{t=1}^{N} = E_{\mathrm{vis}}(\mathcal{F})$ of the sampled frames.
+
+To adaptively segment the video based on semantic continuity, we reformulate the problem as an optimal partitioning task, solved via semantic change point detection along the temporal axis. Given the frame-level semantic embeddings $\mathcal{Z}_\text{feat}$, our goal is to identify an optimal set of temporal boundaries $\tau = \{\tau_k^{\text{start}}, \tau_k^{\text{end}}\}_{k=1}^{K}$ that segments the video into $K$ semantically homogeneous short clips. To pinpoint these boundaries effectively, we quantify the magnitude of frame-to-frame semantic divergence to detect discontinuities in the feature stream. Concretely, we first derive the semantic flux sequence $\mathcal{D}=\{d_t\}_{t=2}^N$, where $d_t = 1 - \frac{z_t \cdot z_{t-1}}{\|z_t\|\|z_{t-1}\|}$ captures the instantaneous semantic shift. We then employ the Pruned Exact Linear Time (PELT) algorithm to solve the following optimal partitioning objective:
+\begin{equation}
+\min_{\{ \tau_k^{\text{start}}, \tau_k^{\text{end}} \}}
+\sum_{k=1}^K \mathcal{C}_{\text{ker}}(d_{\tau_k^{\text{start}} : \tau_k^{\text{end}}})
++ K \cdot \beta,
+\end{equation}
+where a kernel-based cost function $\mathcal{C}_{\text{ker}}$ quantifies the semantic inconsistency of the segment over the semantic flux, and the penalty $K\cdot\beta$ prevents over-segmentation by discouraging unnecessary semantic change points. We provide a more detailed explanation of the cost function $\mathcal{C}_{\text{ker}}$ in Appendix~\ref{appendix:cost_function}. Once the optimal temporal boundaries $\tau$ and the number of clips $K$ are determined, we extract segmented clips from the dense video stream as $S = \{\, \{\, x_t \mid t \in [\tau_k^{\text{start}}, \tau_k^{\text{end}}] \,\} \subset \mathcal{X} \,\}_{k=1}^{K}$. This process adaptively segments the long video into short clips that are both temporally continuous and semantically aligned, serving as the node candidates for constructing the subsequent spatio-temporal graph.

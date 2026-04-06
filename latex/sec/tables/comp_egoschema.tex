@@ -1,0 +1,45 @@
+
+\begin{table}[t]
+\centering
+\small
+% \setlength{\tabcolsep}{1pt}
+\caption{\small {System-level comparison on EgoSchema's test set with SOTA methods built upon fixed (M)LLMs. These approaches can be categorized into two groups: one employs video-to-text tools (e.g., captioners or object detectors) to provide auxiliary textual inputs for downstream (M)LLMs, while the other leverages the native multimodal understanding capability (Native Input) of MLLMs without auxiliary text. Bold and underlined numbers indicate the best and second-best accuracies, respectively. ‘–’ indicates not applicable.}}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{l l c}
+\toprule
+(M)LLM Backbone & Method & Overall$\uparrow$ \\
+% \midrule
+\specialrule{\lightrulewidth}{0pt}{0pt}
+\rowcolor[HTML]{FFF7F0}
+\multicolumn{3}{c}{\rule[-0.9ex]{0pt}{3.3ex}\textbf{\textit{Methods with Video-to-Text Tools}}}\\
+\specialrule{\lightrulewidth}{0pt}{0.8ex}
+\multirow{2}{*}{GPT-3.5} & LLoVi~\cite{llovi} & 57.6 \\
+                       & DrVideo~\cite{drvideo}        & 62.6 \\
+\midrule
+\multirow{4}{*}{GPT-4} & VideoAgent~\cite{videoagent} & 60.2 \\
+                       & LLoVi~\cite{llovi}          & 61.2 \\
+                       & VidAgent~\cite{vidagent}  & 62.8 \\
+                       & VideoTree~\cite{videotree}  & 66.2\\
+                       & DrVideo~\cite{drvideo}               & 66.4 \\
+\midrule
+Qwen2-VL-7B     & Vgent~\cite{vgent}    &  \textbf{68.0}\\
+% \midrule
+\specialrule{\lightrulewidth}{0pt}{0pt}
+\rowcolor[HTML]{FFF7F0}
+\multicolumn{3}{c}{\rule[-0.9ex]{0pt}{3.3ex}\textbf{\textit{Methods with Native Input}}}\\
+\specialrule{\lightrulewidth}{0pt}{0.8ex}
+\multirow{2}{*}{Qwen2-VL-7B} & IG-VLM~\cite{igvlm} & 66.2 \\
+                            & VideoStir (Ours)         & \underline{67.2}\\
+% \midrule
+% \multirow{2}{*}{GPT-4o}      & IG-VLM~\cite{igvlm} & 73.0 \\
+%                             &  \textbf{VideoStir (Ours)}         & \textbf{75.8} \\
+\bottomrule
+\end{tabular}
+}
+\label{tab:comp2}
+% \vspace{-0.10 in}
+\end{table}
+
+%指名Table 1的Setting与Video-RAG一致
+
+%Table3的Setting与FOCUS与AKS一致

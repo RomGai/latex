@@ -1,0 +1,421 @@
+\documentclass[11pt]{article}
+
+% Change "review" to "final" to generate the final (sometimes called camera-ready) version.
+% Change to "preprint" to generate a non-anonymous version with page numbers.
+
+\usepackage[final]{acl}
+
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{setspace}
+
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+
+% This is not strictly necessary, and may be commented out,
+% but it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+% This is also not strictly necessary, and may be commented out.
+% However, it will improve the aesthetics of text in
+% the typewriter font.
+\usepackage{inconsolata}
+
+%Including images in your LaTeX document requires adding
+%additional package(s)
+\usepackage{graphicx}
+
+% ===== Preamble =====
+\usepackage{tcolorbox}
+\tcbuselibrary{minted,skins,breakable}
+% \usepackage[outputdir=build]{minted} % build 改成你的输出目录
+\usepackage[outputdir=.]{minted}
+\usepackage{newtxtt}           % 可选：更好看的等宽字体
+% 自定义一个“Python 代码框”环境
+
+\newtcblisting{pybox}{
+  listing engine=minted,
+  minted language=python,
+  minted options={
+    breaklines,
+    fontsize=\small,
+    linenos,
+    numbersep=6pt,
+    autogobble,
+    escapeinside=||
+  },
+  colback=gray!3,
+  colframe=gray!40,
+  arc=2pt, outer arc=2pt, boxrule=0.6pt,
+  left=6pt,right=6pt,top=6pt,bottom=6pt,
+  breakable,
+  listing only   
+}
+
+
+
+
+% Prompt绘图
+\usepackage{tcolorbox}   % 核心
+\tcbuselibrary{skins}    % 如果要高级样式
+\tcbuselibrary{breakable}% 如果要跨页
+\usepackage{xcolor}      % 颜色支持
+\usepackage{tikz}        % tcolorbox内部依赖
+\usepackage{varwidth}    % 标题/文本宽度调整
+\usepackage{float} 
+
+% 编码和字体
+\usepackage[utf8]{inputenc}   % UTF-8 输入
+\usepackage[T1]{fontenc}      % 输出 T1 字体
+\usepackage{times}             % Times 字体
+\usepackage{inconsolata}       % 等宽字体
+\usepackage{microtype}         % 排版优化
+
+% 数学相关
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{nicefrac}          % 压缩分数样式
+
+% 表格相关
+\usepackage{xcolor}            % 颜色
+\usepackage[table]{xcolor}     % 表格颜色
+\usepackage{colortbl}          % 表格行列颜色
+\usepackage{booktabs}          % 专业表格线
+\usepackage{multirow}          % 多行单元格
+\usepackage{makecell}          % 可换行单元格
+\usepackage{array}             % 表格列格式
+\usepackage{adjustbox}         % 调整表格/图片大小
+
+% 图片和图形
+\usepackage{graphicx}          % 插图
+\usepackage{tikz}              % 绘图
+\usepackage{subcaption}        % 子图
+\usepackage{float,wrapfig}     % 浮动图形
+
+% 超链接和 URL
+\usepackage{hyperref}          % 放在最后
+\usepackage{url}               % 简单 URL
+
+% 算法
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+% 其他辅助
+\usepackage{pifont}            % 特殊符号
+\usepackage{xspace}            % 空格处理
+\usepackage{amsthm}            % 定理环境
+\usepackage{soul}              % 下划线、高亮
+\usepackage{ulem}              % 文本下划线
+\usepackage{caption}           % caption 调整
+% \usepackage[switch]{lineno}    % 行号（可选）
+\usepackage{balance}           % 参考文献平衡
+\usepackage{natbib}
+
+\usepackage{pifont} % 引入特殊符号包
+\usepackage{xcolor} % 引入颜色包
+
+% 定义一种好看的深绿色 (ForestGreen 的近似色)
+\definecolor{cgreen}{RGB}{34,139,34} 
+% 定义一种鲜艳的红色
+\definecolor{cred}{RGB}{178, 34, 34}
+
+% 定义简化的命令，方便表格里调用
+\newcommand{\cmark}{\textcolor{cgreen}{\ding{51}}} % 绿色的勾
+\newcommand{\xmark}{\textcolor{cred}{\ding{55}}}   % 红色的叉
+
+\newcommand{\tightmidrule}{\specialrule{\lightrulewidth}{0pt}{3pt}}
+\newcommand{\tightbottomrule}{\specialrule{\heavyrulewidth}{0pt}{0pt}}
+
+\captionsetup{skip=3pt}  % 设置图标题和图形之间的间距
+% If the title and author information does not fit in the area allocated, uncomment the following
+%
+%\setlength\titlebox{<dim>}
+%
+% and set <dim> to something 5cm or larger.
+
+\title{VideoStir: Understanding Long Videos via Spatio-Temporally Structured and Intent-Aware RAG}
+
+% Author information can be set in various styles:
+% For several authors from the same institution:
+% \author{Author 1 \and ... \and Author n \\
+%         Address line \\ ... \\ Address line}
+% if the names do not fit well on one line use
+%         Author 1 \\ {\bf Author 2} \\ ... \\ {\bf Author n} \\
+% For authors from different institutions:
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \And  ... \And
+%         Author n \\ Address line \\ ... \\ Address line}
+% To start a separate ``row'' of authors use \AND, as in
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \AND
+%         Author 2 \\ Address line \\ ... \\ Address line \And
+%         Author 3 \\ Address line \\ ... \\ Address line}
+
+\author{Honghao Fu$^{1}$, Miao Xu$^{1}$, Yiwei Wang$^{2}$, 
+        \textbf{Dailing Zhang$^{3}$, Liu Jun$^{4}$, Yujun Cai$^{1, 5}$\thanks{Corresponding Author.}} \\
+        $^1$University of Queensland, \quad$^2$University of California, Merced \\
+        $^3$Institute of Automation, CAS, \quad$^4$Lancaster University, \quad$^5$Ant Group \\
+        \normalsize \texttt{\{honghao.fu, miao.xu, yujun.cai\}@uq.edu.au}, \quad\texttt{yiweiwang2@ucmerced.edu} \\
+        \normalsize \texttt{zhangdailing2023@ia.ac.cn}, \quad\texttt{j.liu81@lancaster.ac.uk} \\
+        }
+        
+        
+%\author{
+%  \textbf{First Author\textsuperscript{1}},
+%  \textbf{Second Author\textsuperscript{1,2}},
+%  \textbf{Third T. Author\textsuperscript{1}},
+%  \textbf{Fourth Author\textsuperscript{1}},
+%\\
+%  \textbf{Fifth Author\textsuperscript{1,2}},
+%  \textbf{Sixth Author\textsuperscript{1}},
+%  \textbf{Seventh Author\textsuperscript{1}},
+%  \textbf{Eighth Author \textsuperscript{1,2,3,4}},
+%\\
+%  \textbf{Ninth Author\textsuperscript{1}},
+%  \textbf{Tenth Author\textsuperscript{1}},
+%  \textbf{Eleventh E. Author\textsuperscript{1,2,3,4,5}},
+%  \textbf{Twelfth Author\textsuperscript{1}},
+%\\
+%  \textbf{Thirteenth Author\textsuperscript{3}},
+%  \textbf{Fourteenth F. Author\textsuperscript{2,4}},
+%  \textbf{Fifteenth Author\textsuperscript{1}},
+%  \textbf{Sixteenth Author\textsuperscript{1}},
+%\\
+%  \textbf{Seventeenth S. Author\textsuperscript{4,5}},
+%  \textbf{Eighteenth Author\textsuperscript{3,4}},
+%  \textbf{Nineteenth N. Author\textsuperscript{2,5}},
+%  \textbf{Twentieth Author\textsuperscript{1}}
+%\\
+%\\
+%  \textsuperscript{1}Affiliation 1,
+%  \textsuperscript{2}Affiliation 2,
+%  \textsuperscript{3}Affiliation 3,
+%  \textsuperscript{4}Affiliation 4,
+%  \textsuperscript{5}Affiliation 5
+%\\
+%  \small{
+%    \textbf{Correspondence:} \href{mailto:email@domain}{email@domain}
+%  }
+%}
+
+\begin{document}
+\maketitle
+\input{sec/0_abstract}    
+\input{sec/1_intro}
+\input{sec/2_related_works}
+\input{sec/3_method}
+\input{sec/4_experiment}
+
+\section*{Limitations}
+As VideoStir introduces an additional step to transform long videos into structured representations, it inevitably incurs system latency. Indeed, system latency remains a broad challenge for long-video understanding frameworks that rely on external components like agents or RAG pipelines.
+%We have expanded the discussion of system latency in Appendix~\ref{appendix:costs}. 
+We regard further reducing end-to-end latency as a pivotal direction for future long-video RAG research.
+
+\bibliography{custom}
+
+
+% Bibliography entries for the entire Anthology, followed by custom entries
+%\bibliography{anthology,custom}
+% Custom bibliography entries only
+
+\appendix
+
+\section{The Use of LLMs}
+The paper employs LLMs for language polishing.
+
+\section{Extended discussion for Structured Retrieval}
+\label{appendix:extended_case}
+In Figure~\ref{fig:extended_case}, we further illustrate and discuss the advantages of structured retrieval via visualizations.
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{sec/figures/case_structure.pdf}
+    \caption{\small Advantages of structured retrieval over flat clip retrieval. Flattened retrieval mainly returns clips with explicit semantic overlap with the query, while overlooking clips that are contextually relevant but do not contain direct query-matching content. VideoStir structures long videos to reconstruct spatio-temporal context, allowing multi-hop traversal to aggregate contextually related clips around key moments. The resulting evidence is cleaner and more coherent, providing stronger support for subsequent fine-grained retrieval.}
+    \label{fig:extended_case}
+    \vspace{-0.1in}
+\end{figure}
+
+
+
+\section{Hyperparameter Ablations}
+\label{appendix:hyperparam}
+We determine the hyperparameters for the graph-based clip retrieval procedure based on the ablation study in Table~\ref{tab:hyperp}.
+
+\begin{table}[h]
+    \centering
+    \caption{\small Hyperparameter ablations on Graph-based Clip Retrieval. We investigate the impact of the number of anchors $N$, hop distance $L$, and spatial edge threshold $\eta$. ``Avg. Clips'' denotes the average number of retrieved clips per query. The bold numbers represent the best results.}
+    \label{tab:ablation_hyperparams}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{lcccc}
+        \toprule
+        Hyperparameter & Value & Avg. Clips & Retrieval Acc. $\uparrow$ \\
+        \midrule
+        \multirow{4}{*}{\shortstack[l]{\textbf{Number of Anchors ($N$)} \\ \small \textit{(Fixed $L=2, \eta=0.6$)}}} 
+          & 1 & 7.2 & 88.0  \\
+          & \textbf{2} & 13.6 & \textbf{92.0}  \\
+          & 3 & 21.9 & 90.5  \\
+          & 4 & 25.4 & 90.0  \\
+        \midrule
+        \multirow{4}{*}{\shortstack[l]{\textbf{Hop Distance ($L$)} \\ \small \textit{(Fixed $N=2, \eta=0.6$)}}} 
+          & 1 & 8.4 & 87.0  \\
+          & \textbf{2}  & 13.6 & \textbf{92.0}  \\
+          & 3 & 16.6 & 92.0 \\
+          & 4 & 18.1 & 91.0  \\
+        \midrule
+        \multirow{4}{*}{\shortstack[l]{\textbf{Edge Weight Threshold ($\eta$)} \\ \small \textit{(Fixed $N=2, L=2$)}}} 
+          & 0.2 & 31.4 & 84.0  \\
+          & 0.4 & 20.6 & 90.5 \\
+          & \textbf{0.6} & 13.6 & \textbf{92.0}  \\
+          & 0.8 & 6.8 & 82.5  \\
+        \bottomrule
+    \end{tabular}
+    }
+    \label{tab:hyperp}
+    \vspace{-0.1 in}
+\end{table}
+
+
+
+% \section{System Latency}
+% \label{appendix:costs}
+% We randomly sampled 50 video-query pairs from LongVideoBench, ensuring each pair corresponds to a unique video source. We evaluated the end-to-end system latency of VideoAgent~\cite{videoagent}, Video-RAG~\cite{Video-RAG}, and VideoStir on an A100 GPU. Table~\ref{tab:runtime} reports the average preprocessing time for a single long video, along with the retrieval and inference time for answering one query. The results show that, although our method introduces some computational overhead due to structural processing, it still achieves lower overall latency compared to prior baselines. Indeed, substantial system latency remains a common challenge for long-video understanding frameworks that rely on external components, such as agents or RAG pipelines. We regard further reducing end-to-end latency as a pivotal direction for future research in this domain.
+
+% \begin{table}[t]
+% \centering
+% \caption{\small Comparison of system latency with measurable baselines. Video-RAG and VideoStir use LLaVA-Video (7B) as the downstream MLLM. Preprocessing Delay denotes the average time required to process a long video into a retrievable knowledge base or knowledge graph, while Inference Delay denotes the average time spent on retrieval and inference when answering a query using the processed video. Overall represents downstream accuracy.}
+% \small
+%  \resizebox{\linewidth}{!}{
+% \label{tab:runtime}
+% \begin{tabular}{lccc}
+% \toprule
+% \textbf{Method} & \textbf{Preprocessing Delay} & \textbf{Inference Delay} & \textbf{Overall} \\
+% \midrule
+% VideoAgent & -- & 26 min & 52.0 \\
+% Video-RAG & 63 min & 15 s & 60.0 \\
+% VideoStir & 53 min & 4 min & 64.0 \\
+% \bottomrule
+% \end{tabular}
+% }
+% \label{tab:delay}
+% \vspace{-0.10 in}
+% \end{table}
+
+
+\section{Supplemental Details for IR-600K}
+\label{appendix:dataset}
+
+\subsection{Annotation Example}
+We provide an example annotation below; during training, the text portion of the user content will be substituted into the intent-relevance scoring prompt as \{query\}.
+\begin{tcolorbox}[
+  fonttitle = \small\bfseries,
+  title=Annotation Example,
+  colframe=gray!2!black,
+  colback=gray!2!white,
+  boxrule=1pt,
+  boxsep=0pt,
+  left=5pt,
+  right=5pt,
+  fontupper=\setlength{\parskip}{6pt}\footnotesize, % 段落间距
+  halign title = flush center,
+  % breakable,
+]
+
+[\{"role": "system", "content": "You are a helpful assistant."\}, \{"role": "user", "content": [\{ "type": "image", "image": "8480330992/frame\_000310.jpg"\}, \{"type": "text", "text": "why do the ladies tap the children s heads with some soft item"\}]\}, \{ "role": "assistant", "content": [\{"type": "text","text": "2"\}]\}]
+
+\end{tcolorbox}
+
+% \subsection{Human Evaluation}
+% To evaluate the reliability of IR-600K's supervision signals, we conducted a human evaluation on a stratified random subset of 1,000 samples, balanced across intent scores (1–5). Following QAHighlights~\cite{qah}, each sample was annotated by three volunteers. We recruited nine student volunteers, compensated at standard research assistant rates, and applied the same annotation instruction used for the teacher model. As shown in Table~\ref{tab:human_eval}, human annotators achieved an Adjacent Match Accuracy ($\pm 1$) of 0.987, indicating high consistency in ordinal ordering with disagreements largely confined to adjacent scores. Against this baseline, the teacher model demonstrated strong alignment with volunteer consensus. It achieved an Adjacent Match Accuracy ($\pm 1$) of 0.964, implying reliable reflection of human judgment. Furthermore, a Pearson correlation of 0.876 and a linearly weighted Cohen’s Kappa of 0.733 confirm substantial agreement in both rank consistency and ordinal reliability between teacher model and human volunteers. Overall, the results indicate that the teacher-annotated labels effectively capture human scoring logic, providing robust supervision for training intent-aware scorers.
+
+% \begin{table}[t]
+% \centering
+% \small
+% \setlength{\tabcolsep}{12pt}
+% \caption{\small \textbf{Human Evaluation of IR-600K Annotations.} Human-Human Agreement represents the average pairwise consistency among three volunteers. Teacher Alignment evaluates the Qwen2.5-VL-72B model against the human consensus (the mean of volunteer scores). Adjacent Match Accuracy ($\pm 1$) measures the proportion of samples with a score deviation $\le 1$; Pearson Correlation assesses the linear dependence between predictions and consensus; and Cohen's Kappa utilizes linear weighting to evaluate inter-rater reliability for ordinal intent scores.}
+% % \resizebox{\linewidth}{!}{
+% \begin{tabular}{lc}
+% \toprule
+% \textbf{Metric} & \textbf{Value} \\
+% % \midrule
+% % \rowcolor[HTML]{FFF7F0}\multicolumn{2}{c}{\textit{\textbf{Human-Human Agreement}}} \\
+% % \midrule
+% \specialrule{\lightrulewidth}{0pt}{0pt}
+% \rowcolor[HTML]{FFF7F0}
+% \multicolumn{2}{c}{\rule[-0.9ex]{0pt}{3.3ex}\textbf{\textit{Human-Human Agreement}}}\\
+% \specialrule{\lightrulewidth}{0pt}{0.8ex}
+% Adjacent Match Accuracy ($\pm 1$) & 0.987 \\
+% % \midrule
+% % \rowcolor[HTML]{FFF7F0}\multicolumn{2}{c}{\textit{\textbf{Teacher Alignment}}} \\
+% % \midrule
+% \specialrule{\lightrulewidth}{0pt}{0pt}
+% \rowcolor[HTML]{FFF7F0}
+% \multicolumn{2}{c}{\rule[-0.9ex]{0pt}{3.3ex}\textbf{\textit{Teacher Alignment}}}\\
+% \specialrule{\lightrulewidth}{0pt}{0.8ex}
+% Adjacent Match Accuracy ($\pm 1$) & 0.964 \\
+% Pearson Correlation  & 0.876 \\
+% Weighted Cohen's Kappa  & 0.733 \\
+% \bottomrule
+% \end{tabular}
+% % }
+% \label{tab:human_eval}
+% % \vspace{-0.2 in}
+% \end{table}
+
+\subsection{Dataset Distribution Statistics}
+We summarize the data distributions of the IR-600K training and validation sets in Figures~\ref{fig:statis_train}. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{sec/figures/bar_plot_2.pdf}
+    \caption{\small {Distribution of Intent Relevance Scores across the IR-600K training and validation sets. The results demonstrate that the validation set maintains a consistent class distribution with the training set across all relevance levels.}}
+    \label{fig:statis_train}
+    % \vspace{-0.2in}
+\end{figure}
+
+
+
+
+\section{Intent Relevance Scoring Prompt}
+\label{appendix:prompt}
+
+\begin{tcolorbox}[
+  fonttitle = \small\bfseries,
+  title=Intent-Relevance Scoring Prompt,
+  colframe=gray!2!black,
+  colback=gray!2!white,
+  boxrule=1pt,
+  boxsep=0pt,
+  left=5pt,
+  right=5pt,
+  fontupper=\setlength{\parskip}{6pt}\footnotesize, % 段落间距
+  halign title = flush center,
+  % breakable,
+]
+
+Infer the query’s intent and evaluate how likely it is that this frame is intent-relevant for answering: ‘\{query\}’. 
+
+Output only one number from 1 to 5, where:
+
+[1] = completely irrelevant — the frame provides no visual or contextual information related to the question or its answer.
+
+[2] = slightly relevant — the frame shows general background or context, but it is unlikely to contribute to answering.
+
+[3] = moderately relevant — the frame includes partial clues or indirect context that might help infer the answer, but the key evidence is missing.
+
+[4] = mostly relevant — the frame provides substantial visual or contextual information that can be used to answer the question, though not fully decisive.
+
+[5] = highly relevant — the frame clearly contains the decisive evidence or strong contextual cues that directly or indirectly support the correct answer.
+
+        
+\end{tcolorbox}
+
+\end{document}
+
+
+
