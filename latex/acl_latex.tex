@@ -3,6 +3,7 @@
 % Change "review" to "final" to generate the final (sometimes called camera-ready) version.
 % Change to "preprint" to generate a non-anonymous version with page numbers.
 
+\PassOptionsToPackage{numbers,sort&compress}{natbib}
 \usepackage[final]{acl}
 
 % Standard package includes
@@ -116,7 +117,7 @@
 \usepackage{caption}           % caption 调整
 % \usepackage[switch]{lineno}    % 行号（可选）
 \usepackage{balance}           % 参考文献平衡
-\usepackage{natbib}
+\setcitestyle{square,numbers}
 
 \usepackage{pifont} % 引入特殊符号包
 \usepackage{xcolor} % 引入颜色包
@@ -218,6 +219,7 @@ As VideoStir introduces an additional step to transform long videos into structu
 %We have expanded the discussion of system latency in Appendix~\ref{appendix:costs}. 
 We regard further reducing end-to-end latency as a pivotal direction for future long-video RAG research.
 
+\bibliographystyle{unsrtnat}
 \bibliography{custom}
 
 
@@ -416,6 +418,4 @@ Output only one number from 1 to 5, where:
 \end{tcolorbox}
 
 \end{document}
-
-
 
