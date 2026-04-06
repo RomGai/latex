@@ -192,12 +192,10 @@
 \newcommand\newcite{\citet} % to get "Author (Year)" with natbib
 \newcommand{\citeposs}[1]{\citeauthor{#1}'s (\citeyear{#1})} % to get "Author's (Year)"
 
-\bibliographystyle{acl_natbib}
-
 % Bibliography
 
-% Don't put a label in the bibliography at all.  Just use the unlabeled format
-% instead.
+% Use a standard numbered bibliography layout so numeric natbib styles
+% (e.g., unsrtnat) render consistent in-text indices and reference labels.
 \def\thebibliography#1{\vskip\parskip%
 \vskip\baselineskip%
 \def\baselinestretch{1}%
@@ -206,8 +204,13 @@
 \vskip-\baselineskip%
 \section*{References\@mkboth
  {References}{References}}\list
- {}{\setlength{\labelwidth}{0pt}\setlength{\leftmargin}{\parindent}
- \setlength{\itemindent}{-\parindent}}
+ {\@biblabel{\arabic{enumiv}}}%
+ {\settowidth\labelwidth{\@biblabel{#1}}%
+  \leftmargin\labelwidth
+  \advance\leftmargin\labelsep
+  \usecounter{enumiv}%
+  \let\p@enumiv\@empty
+  \renewcommand\theenumiv{\arabic{enumiv}}}
  \def\newblock{\hskip .11em plus .33em minus -.07em}
  \sloppy\clubpenalty4000\widowpenalty4000
  \sfcode`\.=1000\relax}
